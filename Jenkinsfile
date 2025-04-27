@@ -37,12 +37,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn test"
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -54,6 +48,12 @@ pipeline {
         stage('OWASP Dependency-Check') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn org.owasp:dependency-check-maven:check"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh "${MAVEN_HOME}/bin/mvn test"
             }
         }
 
