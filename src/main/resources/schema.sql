@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS standings (
     team_badge VARCHAR(255),
     country_name VARCHAR(255),
     overall_league_position VARCHAR(255),
-    last_updated TIMESTAMP
+    last_updated VARCHAR(255)
     );

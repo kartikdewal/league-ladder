@@ -13,7 +13,7 @@ public class Standings {
 
     @JsonProperty("country_name")
     private String countryName;
-    
+
     @JsonProperty("league_id")
     private String leagueId;
 
@@ -33,7 +33,7 @@ public class Standings {
     private String teamBadge;
 
     @JsonProperty("last_updated")
-    private LocalDateTime lastUpdated;
+    private String lastUpdated;
 
     public String getTeamId() {
         return teamId;
@@ -91,11 +91,11 @@ public class Standings {
         this.teamBadge = teamBadge;
     }
 
-    public LocalDateTime getLastUpdated() {
+    public String getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDateTime lastUpdated) {
+    public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 }
