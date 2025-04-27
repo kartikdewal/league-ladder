@@ -1,12 +1,10 @@
 package dev.kartikdewal.leagueladder.client;
 
-import dev.kartikdewal.leagueladder.model.Standing;
+import dev.kartikdewal.leagueladder.model.Standings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Component
 public class LeagueLadderClient {
@@ -20,7 +18,7 @@ public class LeagueLadderClient {
         this.webClient = webClient;
     }
 
-    public Mono<List<Standing>> fetchStandings(String leagueId) {
+    public Flux<Standings> fetchStandings(String leagueId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/")
@@ -29,7 +27,6 @@ public class LeagueLadderClient {
                         .queryParam("APIkey", apiKey)
                         .build())
                 .retrieve()
-                .bodyToFlux(Standing.class)
-                .collectList();
+                .bodyToFlux(Standings.class);
     }
 }
