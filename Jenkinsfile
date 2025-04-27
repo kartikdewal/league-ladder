@@ -9,13 +9,31 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                echo "Checkout github repository..."
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                sh "${MAVEN_HOME}/bin/mvn clean compile"
+                script {
+                    docker.build('league-ladder:latest')
+                }
+            }
+        }
+
+        stage('Install Trivy') {
+            steps {
+                sh '''
+                curl -sfL https://aquasecurity.github.io/trivy-repo/install.sh | sh
+                '''
+            }
+        }
+
+        stage('Scan Docker Image') {
+            steps {
+                sh '''
+                trivy image --exit-code 1 --severity CRITICAL,HIGH league-ladder:latest
+                '''
             }
         }
 
