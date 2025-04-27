@@ -25,39 +25,62 @@ public class LeagueLadderService {
     }
 
     public Flux<Standings> getStandings(String leagueId) {
-        return standingsRepo.findAllByLeagueId(leagueId)
-                .collectList()
-                .flatMapMany(cachedStandings -> {
-                    if (cachedStandings.isEmpty()) {
+        try {
+            return standingsRepo.findAllByLeagueId(leagueId)
+                    .collectList()
+                    .flatMapMany(cachedStandings -> {
+                        if (cachedStandings.isEmpty()) {
+                            return fetchAndCacheStandings(leagueId);
+                        }
+
+                        if (isCacheValid(cachedStandings)) {
+                            logger.info("Returning cached standings for leagueId: {}", leagueId);
+                            return Flux.fromIterable(cachedStandings);
+                        }
+
                         return fetchAndCacheStandings(leagueId);
-                    }
-
-                    if (isCacheValid(cachedStandings)) {
-                        return Flux.fromIterable(cachedStandings);
-                    }
-
-                    return fetchAndCacheStandings(leagueId);
-                });
+                    })
+                    .onErrorResume(e -> {
+                        logger.warn("Returning empty standings due to error: {}", e.getMessage());
+                        return Flux.empty();
+                    });
+        } catch (Exception e) {
+            logger.error("Unexpected error in getStandings: {}", e.getMessage());
+            return Flux.error(e);
+        }
     }
 
     private boolean isCacheValid(List<Standings> cachedStandings) {
-        String lastUpdatedString = cachedStandings.get(0).getLastUpdated();
-        if (lastUpdatedString == null) {
+        try {
+            String lastUpdatedString = cachedStandings.getFirst().getLastUpdated();
+            if (lastUpdatedString == null) {
+                return false;
+            }
+
+            OffsetDateTime lastUpdated = OffsetDateTime.parse(lastUpdatedString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            return lastUpdated.isAfter(OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
+        } catch (Exception e) {
+            logger.error("Error validating cache: {}", e.getMessage());
             return false;
         }
-
-        OffsetDateTime lastUpdated = OffsetDateTime.parse(lastUpdatedString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
-        return lastUpdated.isAfter(OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
     }
 
     private Flux<Standings> fetchAndCacheStandings(String leagueId) {
-        String rfc3339Timestamp = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        return leagueLadderClient.fetchStandings(leagueId)
-                .map(standing -> {
-                    standing.setLastUpdated(rfc3339Timestamp);
-                    return standing;
-                })
-                .flatMap(standingsRepo::save);
+        try {
+            String rfc3339Timestamp = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            return leagueLadderClient.fetchStandings(leagueId)
+                    .map(standing -> {
+                        standing.setLastUpdated(rfc3339Timestamp);
+                        return standing;
+                    })
+                    .flatMap(standingsRepo::save)
+                    .onErrorResume(e -> {
+                        logger.warn("Returning empty standings due to error: {}", e.getMessage());
+                        return Flux.empty();
+                    });
+        } catch (Exception e) {
+            logger.error("Unexpected error in fetchAndCacheStandings: {}", e.getMessage());
+            return Flux.error(e);
+        }
     }
 }

@@ -39,12 +39,18 @@ public class LeagueLadderClient {
                         .build())
                 .retrieve()
                 .bodyToFlux(Standings.class)
-                .timeout(Duration.ofSeconds(2)) // Ensure timeout is applied
+                .timeout(Duration.ofSeconds(5))
+                .doOnComplete(() -> logger.info("Successfully fetched standings from the API for leagueId: {}", leagueId))
                 .doOnError(e -> logger.error("Error fetching standings for leagueId {}: {}", leagueId, e.getMessage()));
     }
 
     private Flux<Standings> fallbackFetchStandings(String leagueId, Throwable throwable) {
         logger.warn("Fallback triggered for leagueId {}: {}", leagueId, throwable.getMessage());
-        return standingsRepo.findAllByLeagueId(leagueId);
+        return standingsRepo.findAllByLeagueId(leagueId)
+                .doOnError(e -> logger.error("Error fetching cached standings for leagueId {}: {}", leagueId, e.getMessage()))
+                .onErrorResume(e -> {
+                    logger.warn("Returning empty standings due to error: {}", e.getMessage());
+                    return Flux.empty();
+                });
     }
 }
