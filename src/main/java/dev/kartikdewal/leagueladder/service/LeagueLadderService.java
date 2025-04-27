@@ -37,7 +37,6 @@ public class LeagueLadderService {
     }
 
     private boolean isCacheValid(List<Standings> cachedStandings) {
-        // Assuming all standings have the same timestamp, check the first entry
         LocalDateTime lastUpdated = cachedStandings.getFirst().getLastUpdated();
         return lastUpdated != null && lastUpdated.isAfter(LocalDateTime.now().minusHours(1));
     }
