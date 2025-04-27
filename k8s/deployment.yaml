@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: league-ladder-deployment
+  namespace: default
+  labels:
+    app: league-ladder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: league-ladder
+  template:
+    metadata:
+      labels:
+        app: league-ladder
+    spec:
+      containers:
+        - name: league-ladder
+          image: league-ladder:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: league-ladder-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
