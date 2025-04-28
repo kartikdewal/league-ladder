@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS league (
+    league_id VARCHAR(255),
+    league_name VARCHAR(255),
+    league_season VARCHAR(255),
+    country_id VARCHAR(255),
+    country_name VARCHAR(255),
+    league_logo VARCHAR(255),
+    country_logo VARCHAR(255),
+    last_updated VARCHAR(255)
+);
+
 CREATE TABLE IF NOT EXISTS standings (
     league_id VARCHAR(255),
     league_name VARCHAR(255),

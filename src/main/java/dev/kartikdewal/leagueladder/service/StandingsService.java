@@ -14,12 +14,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class LeagueLadderService {
-    private static final Logger logger = LoggerFactory.getLogger(LeagueLadderService.class);
+public class StandingsService {
+    private static final Logger logger = LoggerFactory.getLogger(StandingsService.class);
     private final LeagueLadderClient leagueLadderClient;
     private final StandingsRepository standingsRepo;
 
-    public LeagueLadderService(LeagueLadderClient leagueLadderClient, StandingsRepository standingsRepository) {
+    public StandingsService(LeagueLadderClient leagueLadderClient, StandingsRepository standingsRepository) {
         this.leagueLadderClient = leagueLadderClient;
         this.standingsRepo = standingsRepository;
     }
@@ -67,13 +67,22 @@ public class LeagueLadderService {
 
     private Flux<Standings> fetchAndCacheStandings(String leagueId) {
         try {
-            String rfc3339Timestamp = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             return leagueLadderClient.fetchStandings(leagueId)
-                    .map(standing -> {
-                        standing.setLastUpdated(rfc3339Timestamp);
-                        return standing;
+                    .flatMap(standing -> {
+                        Standings s = new Standings();
+                        s.setLeagueId(leagueId);
+                        s.setLeagueName(standing.getLeagueName());
+                        s.setCountryName(standing.getCountryName());
+                        s.setTeamId(standing.getTeamId());
+                        s.setTeamName(standing.getTeamName());
+                        s.setOverallLeaguePosition(standing.getOverallLeaguePosition());
+                        s.setTeamBadge(standing.getTeamBadge());
+                        s.setLastUpdated(OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+                        return standingsRepo.save(s)
+                                .doOnNext(savedStanding -> logger.debug("Saved standings for team: {}", savedStanding.getTeamId()))
+                                .doOnError(error -> logger.error("Error saving standings: {}", error.getMessage()));
                     })
-                    .flatMap(standingsRepo::save)
                     .onErrorResume(e -> {
                         logger.warn("Returning empty standings due to error: {}", e.getMessage());
                         return Flux.empty();

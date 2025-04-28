@@ -1,5 +1,7 @@
 package dev.kartikdewal.leagueladder.client;
 
+import dev.kartikdewal.leagueladder.dto.LeagueDto;
+import dev.kartikdewal.leagueladder.dto.StandingsDto;
 import dev.kartikdewal.leagueladder.model.Standings;
 import dev.kartikdewal.leagueladder.repository.StandingsRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -29,7 +31,7 @@ public class LeagueLadderClient {
 
     @CircuitBreaker(name = "leagueLadderClient", fallbackMethod = "fallbackFetchStandings")
     @TimeLimiter(name = "leagueLadderClient")
-    public Flux<Standings> fetchStandings(String leagueId) {
+    public Flux<StandingsDto> fetchStandings(String leagueId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/")
@@ -38,7 +40,7 @@ public class LeagueLadderClient {
                         .queryParam("APIkey", apiKey)
                         .build())
                 .retrieve()
-                .bodyToFlux(Standings.class)
+                .bodyToFlux(StandingsDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .doOnComplete(() -> logger.info("Successfully fetched standings from the API for leagueId: {}", leagueId))
                 .doOnError(e -> logger.error("Error fetching standings for leagueId {}: {}", leagueId, e.getMessage()));
@@ -52,5 +54,18 @@ public class LeagueLadderClient {
                     logger.warn("Returning empty standings due to error: {}", e.getMessage());
                     return Flux.empty();
                 });
+    }
+
+    public Flux<LeagueDto> fetchLeagues() {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/")
+                        .queryParam("action", "get_leagues")
+                        .queryParam("APIkey", apiKey)
+                        .build())
+                .retrieve()
+                .bodyToFlux(LeagueDto.class)
+                .doOnComplete(() -> logger.info("Successfully fetched leagues from the API"))
+                .doOnError(e -> logger.error("Error fetching leagues: {}", e.getMessage()));
     }
 }
