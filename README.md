@@ -20,6 +20,27 @@ The **League Ladder Service** is a Spring Boot-based application designed to man
 - **Security Tools**: Trivy, OWASP Dependency-Check
 - **Code Quality**: SonarQube
 
+### Running the Application via JAR File
+   ```bash
+   # Build the application
+   mvn clean package
+   # Run the application
+   java -jar target/league-ladder-0.0.1-SNAPSHOT.jar
+    ```
+   
+## Accessing the API
+Once the application is running, you can access the API at http://localhost:8080.
+
+### API Endpoints
+| Endpoint              | Method | Description                              |
+|-----------------------|--------|------------------------------------------|
+| /, /leagues           | GET    | Fetches all available leagues.           |
+| /standings/{leagueId} | GET    | Fetches standings for a specific league. |
+
+## Sequence Diagram
+
+![Sequence Diagram](./sequence-diagram.png "Sequence Diagram")
+
 ## Prerequisites
 - Java 21
 - Maven
@@ -63,9 +84,6 @@ The Jenkins pipeline (`Jenkinsfile`) includes the following stages:
 - **Test**: Runs unit tests.
 - **Package**: Packages the application.
 - **Deploy**: Deploys the application to Kubernetes.
-
-## API Endpoints
-- **GET /standings/{leagueId}**: Fetches standings for a specific league.
 
 ## Configuration
 - Environment variables are managed using a Kubernetes ConfigMap (`league-ladder-config`).
