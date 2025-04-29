@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,5 +23,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
         logger.warn("Invalid input: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleNoHandlerFoundException(ResponseStatusException e, ServerWebExchange exchange) {
+        String requestedPath = exchange.getRequest().getPath().toString();
+        logger.warn("Invalid URL path: {}", requestedPath);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The requested URL was not found.");
     }
 }
