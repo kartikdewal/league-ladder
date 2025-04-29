@@ -34,8 +34,8 @@ Once the application is running, you can access the API at http://localhost:8080
 ### API Endpoints
 | Endpoint              | Method | Description                              |
 |-----------------------|--------|------------------------------------------|
-| /, /leagues           | GET    | Fetches all available leagues.           |
-| /standings/{leagueId} | GET    | Fetches standings for a specific league. |
+| /, /v1, /leagues      | GET    | Fetches all available leagues.           | 
+| /{leagueId}/standings | GET    | Fetches standings for a specific league. |
 
 ## Sequence Diagram
 
