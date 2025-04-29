@@ -26,16 +26,18 @@ The **League Ladder Service** is a Spring Boot-based application designed to man
    mvn clean package
    # Run the application
    java -jar target/league-ladder-0.0.1-SNAPSHOT.jar
-    ```
+   ```
    
 ## Accessing the API
-Once the application is running, you can access the API at http://localhost:8080.
+Once the application is running, you can access the API at http://localhost:8080. It uses basic authentication. You can use the following credentials:
+- **Username**: `user`
+- **Password**: `password`
 
 ### API Endpoints
-| Endpoint              | Method | Description                              |
-|-----------------------|--------|------------------------------------------|
-| /, /v1, /leagues      | GET    | Fetches all available leagues.           | 
-| /{leagueId}/standings | GET    | Fetches standings for a specific league. |
+| Endpoint              | Method | Description                              | Example                                                                           |
+|-----------------------|--------|------------------------------------------|-----------------------------------------------------------------------------------|
+| /, /v1, /leagues      | GET    | Fetches all available leagues.           | curl -L 'localhost:8080/' -H 'Authorization: Basic ********'                      |
+| /{leagueId}/standings | GET    | Fetches standings for a specific league. | curl -L 'localhost:8080/leagues/149/standings' -H 'Authorization: Basic ********' |
 
 ## Sequence Diagram
 
