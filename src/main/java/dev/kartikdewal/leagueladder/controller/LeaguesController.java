@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @RestController
 @EnableWebFlux
-@RequestMapping("/")
+@RequestMapping({"/", "/v1"})
 public class LeaguesController {
 
     private final LeagueService leagueService;
@@ -19,7 +19,7 @@ public class LeaguesController {
         this.leagueService = leagueService;
     }
 
-    @GetMapping({"/v{apiVersion}", "/v{apiVersion}/leagues"})
+    @GetMapping({"/", "/v{apiVersion}", "/leagues"})
     public Flux<League> getLeagues(
             @PathVariable(required = false) String apiVersion) {
         if (apiVersion == null || apiVersion.isBlank()) {

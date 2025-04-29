@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @EnableWebFlux
-@RequestMapping("/v{apiVersion}/standings")
+@RequestMapping("/leagues")
 public class StandingsController {
 
     private final StandingsService standingsService;
@@ -20,7 +20,7 @@ public class StandingsController {
         this.standingsService = standingsService;
     }
 
-    @GetMapping("/{leagueId}")
+    @GetMapping("/{leagueId}/standings")
     public Flux<Standings> getStandings(
             @PathVariable(required = false) String apiVersion,
             @PathVariable String leagueId) {
