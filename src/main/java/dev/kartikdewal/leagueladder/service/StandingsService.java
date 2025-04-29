@@ -30,7 +30,7 @@ public class StandingsService {
                     .collectList()
                     .flatMapMany(cachedStandings -> {
                         if (cachedStandings.isEmpty()) {
-                            return fetchAndCacheStandings(leagueId);
+                            return Flux.defer(() -> fetchAndCacheStandings(leagueId));
                         }
 
                         if (isCacheValid(cachedStandings)) {
