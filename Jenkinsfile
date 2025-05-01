@@ -9,31 +9,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo "Checkout github repository..."
+                echo "Checkout GitHub repository..."
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'git@github.com:kartikdewal/league-ladder.git']]])
             }
         }
 
-        stage('Build Docker Image') {
+        stage('OWASP Dependency-Check') {
             steps {
-                script {
-                    docker.build('league-ladder:latest')
-                }
-            }
-        }
-
-        stage('Install Trivy') {
-            steps {
-                sh '''
-                curl -sfL https://aquasecurity.github.io/trivy-repo/install.sh | sh
-                '''
-            }
-        }
-
-        stage('Scan Docker Image') {
-            steps {
-                sh '''
-                trivy image --exit-code 1 --severity CRITICAL,HIGH league-ladder:latest
-                '''
+                sh "${MAVEN_HOME}/bin/mvn org.owasp:dependency-check-maven:check"
             }
         }
 
@@ -45,17 +28,36 @@ pipeline {
             }
         }
 
-        stage('OWASP Dependency-Check') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn org.owasp:dependency-check-maven:check"
-            }
-        }
-
         stage('Test') {
             steps {
                 sh "${MAVEN_HOME}/bin/mvn test"
             }
         }
+
+        stage('Install Trivy') {
+            steps {
+                sh '''
+                curl -sfL https://aquasecurity.github.io/trivy-repo/install.sh | sh
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build('league-ladder:latest', '.')
+                }
+            }
+        }
+
+        stage('Scan Docker Image') {
+            steps {
+                sh '''
+                trivy image --exit-code 1 --severity CRITICAL,HIGH league-ladder:latest
+                '''
+            }
+        }
+
 
         stage('Package') {
             steps {
