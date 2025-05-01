@@ -34,10 +34,10 @@ Once the application is running, you can access the API at http://localhost:8080
 - **Password**: `password`
 
 ### API Endpoints
-| Endpoint              | Method | Description                              | Example                                                                           |
-|-----------------------|--------|------------------------------------------|-----------------------------------------------------------------------------------|
-| /, /v1, /leagues      | GET    | Fetches all available leagues.           | curl -L 'localhost:8080/' -H 'Authorization: Basic ********'                      |
-| /{leagueId}/standings | GET    | Fetches standings for a specific league. | curl -L 'localhost:8080/leagues/149/standings' -H 'Authorization: Basic ********' |
+| Endpoint                        | Method | Description                              | Example                                                                              |
+|---------------------------------|--------|------------------------------------------|--------------------------------------------------------------------------------------|
+| /v1/leagues                     | GET    | Fetches all available leagues.           | curl -L 'localhost:8080/v1/leagues' -H 'Authorization: Basic ********'               |
+| v1/leagues/{leagueId}/standings | GET    | Fetches standings for a specific league. | curl -L 'localhost:8080/v1/leagues/149/standings' -H 'Authorization: Basic ********' |
 
 ## Sequence Diagram
 

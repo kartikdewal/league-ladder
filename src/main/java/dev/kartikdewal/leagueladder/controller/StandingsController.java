@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @EnableWebFlux
-@RequestMapping("/leagues")
+@RequestMapping("/v1/leagues")
 public class StandingsController {
 
     private final StandingsService standingsService;
@@ -21,9 +21,7 @@ public class StandingsController {
     }
 
     @GetMapping("/{leagueId}/standings")
-    public Flux<Standings> getStandings(
-            @PathVariable(required = false) String apiVersion,
-            @PathVariable String leagueId) {
+    public Flux<Standings> getStandings(@PathVariable String leagueId) {
         if (leagueId == null || leagueId.isBlank()) {
             throw new IllegalArgumentException("LeagueId must not be null or blank");
         }

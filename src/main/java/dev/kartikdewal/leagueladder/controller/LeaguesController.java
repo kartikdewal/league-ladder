@@ -2,15 +2,15 @@ package dev.kartikdewal.leagueladder.controller;
 
 import dev.kartikdewal.leagueladder.model.League;
 import dev.kartikdewal.leagueladder.service.LeagueService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import reactor.core.publisher.Flux;
 
-import java.util.Objects;
-
 @RestController
 @EnableWebFlux
-@RequestMapping({"/", "/v1"})
+@RequestMapping({"/v1/leagues"})
 public class LeaguesController {
 
     private final LeagueService leagueService;
@@ -19,15 +19,8 @@ public class LeaguesController {
         this.leagueService = leagueService;
     }
 
-    @GetMapping({"/", "/v{apiVersion}", "/leagues"})
-    public Flux<League> getLeagues(
-            @PathVariable(required = false) String apiVersion) {
-        if (apiVersion == null || apiVersion.isBlank()) {
-            apiVersion = "1";
-        }
-        if (!Objects.equals(apiVersion, "1")) {
-            throw new IllegalArgumentException("API version " + apiVersion + " is not supported");
-        }
+    @GetMapping
+    public Flux<League> getLeagues() {
         return leagueService.getLeagues();
     }
 }
